@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#000">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auxílio @PSYCHOPT</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Reset básico */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: #000;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Fundo de Partículas */
+        #particles-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        /* Container Principal */
+        .menu-container {
+            position: relative;
+            z-index: 10;
+            width: 360px;
+            background: rgba(0, 0, 0, 0.85);
+            border: 2px solid #00aaff;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 170, 255, 0.3), inset 0 0 20px rgba(0, 170, 255, 0.1);
+            backdrop-filter: blur(5px);
+        }
+
+        .header-title {
+            text-align: center;
+            color: #00aaff;
+            font-weight: 900;
+            font-size: 18px;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(0, 170, 255, 0.6);
+            text-transform: uppercase;
+        }
+
+        .header-title span {
+            color: #fff;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .col {
+            flex: 1;
+        }
+
+        /* Caixas de Controle */
+        .control-box {
+            border: 1px solid rgba(0, 170, 255, 0.3);
+            background: rgba(10, 20, 30, 0.6);
+            border-radius: 12px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: 0.3s;
+        }
+
+        .control-box.active {
+            border-color: #00aaff;
+            box-shadow: 0 0 10px rgba(0, 170, 255, 0.3);
+        }
+
+        .control-box.inactive {
+            opacity: 0.6;
+        }
+
+        .control-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+        }
+
+        .control-header i {
+            color: #00aaff;
+            font-size: 14px;
+        }
+
+        .control-header span {
+            color: #fff;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .description {
+            color: #888;
+            font-size: 10px;
+            margin-top: 2px;
+        }
+
+        /* Toggle Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 36px;
+            height: 20px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #333;
+            transition: .4s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #00aaff;
+            box-shadow: 0 0 10px #00aaff;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(16px);
+        }
+
+        /* Sliders */
+        .slider-container {
+            margin-top: 5px;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            color: #fff;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .slider-header span.value {
+            color: #00aaff;
+            font-weight: bold;
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 0 10px #00aaff, 0 0 5px #00aaff;
+            border: 2px solid #00aaff;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #333;
+            border-radius: 2px;
+        }
+
+        /* Select Box */
+        .select-box {
+            background: transparent;
+            border: 1px solid #444;
+            color: #fff;
+            padding: 5px;
+            border-radius: 5px;
+            width: 100%;
+            margin-top: 5px;
+            outline: none;
+            font-size: 12px;
+        }
+
+        /* Botão Principal */
+        .main-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(90deg, #0055ff, #00aaff);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: 900;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 10px;
+            text-transform: uppercase;
+            box-shadow: 0 0 20px rgba(0, 170, 255, 0.4);
+            transition: 0.2s;
+        }
+
+        .main-button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 30px rgba(0, 170, 255, 0.8);
+        }
+
+        .main-button:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="particles-canvas"></canvas>
+
+    <div class="menu-container">
+        <div class="header-title">
+            AUXÍLIO BY <span>@PSYCHOPT</span>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="control-box" id="box-aimbot">
+                    <div class="control-header">
+                        <label class="switch">
+                            <input type="checkbox" id="toggle-aimbot" onchange="toggleState('aimbot')">
+                            <span class="slider"></span>
+                        </label>
+                        <i class="fa-solid fa-crosshairs"></i>
+                        <span>Aimbot Legit</span>
+                    </div>
+                    <div class="description">Ajuste de mira suave.</div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="control-box" id="box-recoil">
+                    <div class="control-header">
+                        <label class="switch">
+                            <input type="checkbox" id="toggle-recoil" onchange="toggleState('recoil')">
+                            <span class="slider"></span>
+                        </label>
+                        <i class="fa-solid fa-gun"></i>
+                        <span>No Recoil</span>
+                    </div>
+                    <div class="description">Controle de recuo.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="control-box" id="box-aimlock">
+                    <div class="control-header">
+                        <label class="switch">
+                            <input type="checkbox" id="toggle-aimlock" onchange="toggleState('aimlock')">
+                            <span class="slider"></span>
+                        </label>
+                        <i class="fa-solid fa-lock"></i>
+                        <span>Aimlock 76%</span>
+                    </div>
+                    <div class="description">Fixação de alvo ativa.</div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="control-box">
+                    <div class="slider-container">
+                        <div class="slider-header">
+                            <span>FOV</span>
+                            <span class="value" id="fov-value">(0)</span>
+                        </div>
+                        <input type="range" id="fov-slider" min="0" max="180" value="0" oninput="updateFOV(this.value)">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="control-box" id="box-precisao">
+                    <div class="control-header">
+                        <label class="switch">
+                            <input type="checkbox" id="toggle-precisao" onchange="toggleState('precisao')">
+                            <span class="slider"></span>
+                        </label>
+                        <i class="fa-solid fa-burst"></i>
+                        <span>Precisão</span>
+                    </div>
+                    <div class="description">Estabilização de disparos.</div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="control-box">
+                    <div class="control-header" style="margin-bottom: 0;">
+                        <i class="fa-solid fa-bullseye"></i>
+                        <span>FOCO:</span>
+                    </div>
+                    <select class="select-box">
+                        <option>Cabeça</option>
+                        <option>Peito</option>
+                        <option>Perna</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-box" style="margin-bottom: 10px;">
+            <div class="slider-container">
+                <div class="slider-header">
+                    <span>FPS:</span>
+                    <span class="value" id="fps-value">120 Fps</span>
+                </div>
+                <input type="range" id="fps-slider" min="30" max="240" value="120" oninput="updateFPS(this.value)">
+            </div>
+        </div>
+
+        <!-- Botão Injetar -->
+        <button class="main-button" id="btn-injetar" onclick="abrirJogo()">
+            INJETAR ARQUIVOS NO JOGO
+        </button>
+    </div>
+
+    <script>
+        // --- Lógica de Ativar/Desativar Botões ---
+        function toggleState(type) {
+            const checkbox = document.getElementById(`toggle-${type}`);
+            const box = document.getElementById(`box-${type}`);
+            
+            if (checkbox.checked) {
+                box.classList.add('active');
+                box.classList.remove('inactive');
+            } else {
+                box.classList.add('inactive');
+                box.classList.remove('active');
+            }
+        }
+
+        window.onload = function() {
+            ['aimbot', 'recoil', 'aimlock', 'precisao'].forEach(type => {
+                document.getElementById(`toggle-${type}`).checked = false;
+                document.getElementById(`box-${type}`).classList.add('inactive');
+            });
+        };
+
+        // --- Lógica do FOV ---
+        function updateFOV(value) {
+            document.getElementById('fov-value').innerText = `(${value})`;
+        }
+
+        // --- Lógica do FPS ---
+        function updateFPS(value) {
+            document.getElementById('fps-value').innerText = `${value} Fps`;
+        }
+
+        // --- FUNÇÃO DO BOTÃO INJETAR ---
+        function abrirJogo() {
+            const btn = document.getElementById('btn-injetar');
+            const isAndroid = /Android/i.test(navigator.userAgent);
+            const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+            // O CÓDIGO QUE VOCÊ ENVIOU (Para ser copiado)
+            const scriptConfig = `
+if aimbot = 78%
+const string v1: com.dts.freefireth
+aimbot 78%
+mira grudar muito 78% : : mira muito pesado 78% :
+<<< if aimbot = 78% if mira pesar grudando 78% na cabeça
+<<<<<<< sensitivity on
+<<<<<< if aimbot 78% sensitivity_on >>>
+("Resolution aimbot 78% ")
+("Resolution mira grudar 78% ")
+("Resolution mira pesar 78% ")
+const local dword
+const local aimbot (" headshot
+StartAcitivy const string vi: free fire/com.dts.freefireth;
+("HEADSHOT 78% MIRA TRAVAR NA CABEÇA")
+(HEADSHOT 78% = MIRA NÃO PASSAR DA CABEÇA")
+sensitivity_on />
+sensitivity_true />
+AimLook force
+if aimlook force 60%
+const string vi: com.dts.freefireth
+AimLook 60% Start const mira grudar force 60%
+const mira force 60%
+const string v1 ("aimlook mira grudar 60% force ")
+9999x");
+StartAcitivy (
+("mira puxar a cabeça ") Start almlook 60%
+sensitivity_on { aimlook 60
+(" mira grudar force 60% ") aimlook 60%
+Start
+StartAcitivy { const string v2 (aimlook grudar 60% (" force dword:
+public class SensitivityManager {
+private float sensitivityMultiplier;
+public SensitivityManager(float multiplier) {
+this.sensitivityMultiplier = multiplier;
+}
+public float adjustMovement (float inputDelta) {
+return inputDelta * sensitivity Multiplier; }
+public void onTouchMove (float deltax, float deltay) {
+float newX adjustMovement(deltaX);
+float newY adjustMovement(deltay);
+}
+applyToCamera(newX, newY);
+private void applyToCamera(float x, float y) {
+System.out.println("Movendo câmera para: X=" + x + " Y=" + y); }
+`;
+
+            // Copia o script para a área de transferência do celular
+            navigator.clipboard.writeText(scriptConfig).then(() => {
+                console.log("Script copiado com sucesso!");
+            }).catch(err => {
+                console.error("Erro ao copiar: ", err);
+            });
+
+            // Animação visual do botão
+            btn.innerText = "COPIADO! ABRINDO...";
+            btn.style.opacity = "0.7";
+
+            // Tenta abrir o Free Fire via URL Scheme
+            const linkJogo = "freefire://";
+            const a = document.createElement('a');
+            a.href = linkJogo;
+            document.body.appendChild(a);
+            
+            let appAberto = false;
+
+            window.addEventListener('blur', function() {
+                appAberto = true;
+            });
+
+            a.click();
+
+            setTimeout(() => {
+                document.body.removeChild(a);
+            }, 1000);
+
+            // Fallback: Se após 2 segundos a página ainda estiver visível, vai para a loja
+            setTimeout(() => {
+                if (!document.hidden && !appAberto) {
+                    if (isAndroid) {
+                        window.location.href = "https://play.google.com/store/apps/details?id=com.dts.freefireth";
+                    } else if (isIOS) {
+                        window.location.href = "https://apps.apple.com/br/app/garena-free-fire/id1011200759";
+                    } else {
+                        alert("Abra este menu no seu celular Android ou iPhone.");
+                    }
+                }
+                
+                // Restaura o botão
+                btn.innerText = "INJETAR ARQUIVOS NO JOGO";
+                btn.style.opacity = "1";
+            }, 2000);
+        }
+
+        // --- Fundo de Partículas ---
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.size = Math.random() * 2 + 1;
+                this.color = `rgba(0, 170, 255, ${Math.random() * 0.5 + 0.1})`;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.x < 0 || this.x > width) this.vx *= -1;
+                if (this.y < 0 || this.y > height) this.vy *= -1;
+                this.draw();
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+        }
+
+        function init() {
+            particles = [];
+            for (let i = 0; i < 100; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => p.update());
+            requestAnimationFrame(animate);
+        }
+
+        init();
+        animate();
+    </script>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js")
+        .then(() => console.log("Service Worker registrado com sucesso!"))
+        .catch((error) => console.error("Erro ao registrar Service Worker:", error));
+    }
+  </script>
+</body>
+</html>
